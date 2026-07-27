@@ -17,11 +17,11 @@
         { "key": "STRIPE_WEBHOOK_SECRET", "secret": true, "description": "Signing secret used to verify Stripe webhook payloads." }
       ]
     },
-    { "kind": "external", "name": "email-provider", "description": "Sends order confirmation and shipment-notification emails to shoppers. No specific provider is named in the requirements; pick one of the candidates.",
-      "candidates": [
-        { "name": "sendgrid", "style": "rest-api", "description": "SendGrid transactional email REST API." },
-        { "name": "postmark", "style": "rest-api", "description": "Postmark transactional email REST API." },
-        { "name": "resend", "style": "sdk", "package": "npm:resend", "description": "Resend transactional email SDK." }
+    { "kind": "external", "name": "email-provider", "style": "rest-api", "specPath": "https://raw.githubusercontent.com/sendgrid/sendgrid-oai/main/oas_v3.json",
+      "description": "SendGrid v3 REST API, used to send order confirmation and shipment-notification emails to shoppers via POST /v3/mail/send.",
+      "config": [
+        { "key": "SENDGRID_API_KEY", "secret": true, "description": "SendGrid API key used to authenticate mail-send requests." },
+        { "key": "SENDGRID_FROM_EMAIL", "defaultValue": "orders@ceramica.example.com", "description": "The verified sender address order/shipment emails are sent from." }
       ]
     }
   ],
