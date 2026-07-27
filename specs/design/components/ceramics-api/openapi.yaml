@@ -1,0 +1,549 @@
+openapi: 3.0.3
+info:
+  title: Ceramics API
+  version: 1.0.0
+  description: Catalog, cart, checkout, order, and admin management API for the handmade-ceramics store.
+servers:
+  - url: /
+
+security:
+  - bearerAuth: []
+
+paths:
+  /products:
+    get:
+      operationId: listProducts
+      summary: List/search/filter products
+      security: []
+      parameters:
+        - { name: category, in: query, schema: { type: string } }
+        - { name: collection, in: query, schema: { type: string } }
+        - { name: query, in: query, schema: { type: string }, description: full-text search }
+        - { name: sort, in: query, schema: { type: string, enum: [price, newest] } }
+        - { name: limit, in: query, schema: { type: integer, default: 20, maximum: 100 } }
+        - { name: offset, in: query, schema: { type: integer, default: 0 } }
+      responses:
+        '200':
+          description: Paginated product list
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [count, data]
+                properties:
+                  count: { type: integer }
+                  next: { type: string, nullable: true }
+                  previous: { type: string, nullable: true }
+                  data: { type: array, items: { $ref: '#/components/schemas/Product' } }
+    post:
+      operationId: createProduct
+      summary: Create a product (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProductInput' }
+      responses:
+        '201': { description: Product created, headers: { Location: { schema: { type: string } } }, content: { application/json: { schema: { $ref: '#/components/schemas/Product' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /products/{productId}:
+    parameters:
+      - { name: productId, in: path, required: true, schema: { type: string } }
+    get:
+      operationId: getProduct
+      summary: Get product detail
+      security: []
+      responses:
+        '200': { description: Product detail, content: { application/json: { schema: { $ref: '#/components/schemas/ProductDetail' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      operationId: updateProduct
+      summary: Replace a product (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProductInput' }
+      responses:
+        '200': { description: Product updated, content: { application/json: { schema: { $ref: '#/components/schemas/Product' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      operationId: retireProduct
+      summary: Retire (unpublish) a product (admin)
+      responses:
+        '204': { description: Product retired }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /products/{productId}/variants:
+    parameters:
+      - { name: productId, in: path, required: true, schema: { type: string } }
+    get:
+      operationId: listVariants
+      summary: List a product's variants
+      security: []
+      responses:
+        '200': { description: Variant list, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Variant' } } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createVariant
+      summary: Add a variant to a product (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VariantInput' }
+      responses:
+        '201': { description: Variant created, content: { application/json: { schema: { $ref: '#/components/schemas/Variant' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /products/{productId}/variants/{variantId}:
+    parameters:
+      - { name: productId, in: path, required: true, schema: { type: string } }
+      - { name: variantId, in: path, required: true, schema: { type: string } }
+    put:
+      operationId: updateVariant
+      summary: Update a variant, incl. stock count (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VariantInput' }
+      responses:
+        '200': { description: Variant updated, content: { application/json: { schema: { $ref: '#/components/schemas/Variant' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      operationId: deleteVariant
+      summary: Remove a variant (admin)
+      responses:
+        '204': { description: Variant removed }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /carts:
+    post:
+      operationId: createCart
+      summary: Create a new cart (guest or account-linked)
+      security: []
+      responses:
+        '201': { description: Cart created, headers: { Location: { schema: { type: string } } }, content: { application/json: { schema: { $ref: '#/components/schemas/Cart' } } } }
+
+  /carts/{cartId}:
+    parameters:
+      - { name: cartId, in: path, required: true, schema: { type: string } }
+    get:
+      operationId: getCart
+      summary: Get a cart with its items and subtotal
+      security: []
+      responses:
+        '200': { description: Cart detail, content: { application/json: { schema: { $ref: '#/components/schemas/Cart' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /carts/{cartId}/items:
+    parameters:
+      - { name: cartId, in: path, required: true, schema: { type: string } }
+    post:
+      operationId: addCartItem
+      summary: Add a variant + quantity to the cart
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CartItemInput' }
+      responses:
+        '201': { description: Item added, content: { application/json: { schema: { $ref: '#/components/schemas/Cart' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '409': { description: Requested quantity exceeds available stock, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /carts/{cartId}/items/{itemId}:
+    parameters:
+      - { name: cartId, in: path, required: true, schema: { type: string } }
+      - { name: itemId, in: path, required: true, schema: { type: string } }
+    put:
+      operationId: updateCartItem
+      summary: Update a cart item's quantity
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CartItemInput' }
+      responses:
+        '200': { description: Cart updated, content: { application/json: { schema: { $ref: '#/components/schemas/Cart' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '409': { description: Requested quantity exceeds available stock, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      operationId: removeCartItem
+      summary: Remove an item from the cart
+      security: []
+      responses:
+        '204': { description: Item removed }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /carts/{cartId}/checkout:
+    parameters:
+      - { name: cartId, in: path, required: true, schema: { type: string } }
+    post:
+      operationId: checkoutCart
+      summary: Re-validate stock/price, charge payment, and create the order
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CheckoutRequest' }
+      responses:
+        '201': { description: Order placed, content: { application/json: { schema: { $ref: '#/components/schemas/Order' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '402': { description: Payment failed, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+        '409': { description: An item became unavailable since it was added to the cart, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /me/orders:
+    get:
+      operationId: listMyOrders
+      summary: List the signed-in shopper's past orders
+      parameters:
+        - { name: limit, in: query, schema: { type: integer, default: 20, maximum: 100 } }
+        - { name: offset, in: query, schema: { type: integer, default: 0 } }
+      responses:
+        '200':
+          description: Paginated order list
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [count, data]
+                properties:
+                  count: { type: integer }
+                  next: { type: string, nullable: true }
+                  previous: { type: string, nullable: true }
+                  data: { type: array, items: { $ref: '#/components/schemas/Order' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /me/addresses:
+    get:
+      operationId: listMyAddresses
+      summary: List the signed-in shopper's saved addresses
+      responses:
+        '200': { description: Address list, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Address' } } } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    post:
+      operationId: addMyAddress
+      summary: Save a new address
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AddressInput' }
+      responses:
+        '201': { description: Address saved, content: { application/json: { schema: { $ref: '#/components/schemas/Address' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /me/addresses/{addressId}:
+    parameters:
+      - { name: addressId, in: path, required: true, schema: { type: string } }
+    put:
+      operationId: updateMyAddress
+      summary: Update a saved address
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AddressInput' }
+      responses:
+        '200': { description: Address updated, content: { application/json: { schema: { $ref: '#/components/schemas/Address' } } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      operationId: deleteMyAddress
+      summary: Delete a saved address
+      responses:
+        '204': { description: Address deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /orders:
+    get:
+      operationId: listOrders
+      summary: List/filter all orders (admin)
+      parameters:
+        - { name: status, in: query, schema: { type: string, enum: [placed, paid, shipped, delivered, canceled, refunded] } }
+        - { name: limit, in: query, schema: { type: integer, default: 20, maximum: 100 } }
+        - { name: offset, in: query, schema: { type: integer, default: 0 } }
+      responses:
+        '200':
+          description: Paginated order list
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [count, data]
+                properties:
+                  count: { type: integer }
+                  next: { type: string, nullable: true }
+                  previous: { type: string, nullable: true }
+                  data: { type: array, items: { $ref: '#/components/schemas/Order' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /orders/{orderId}:
+    parameters:
+      - { name: orderId, in: path, required: true, schema: { type: string } }
+    get:
+      operationId: getOrder
+      summary: Get full order detail, incl. status history (admin)
+      responses:
+        '200': { description: Order detail, content: { application/json: { schema: { $ref: '#/components/schemas/OrderDetail' } } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /orders/{orderId}/fulfillment:
+    parameters:
+      - { name: orderId, in: path, required: true, schema: { type: string } }
+    post:
+      operationId: updateOrderFulfillment
+      summary: Update fulfillment status and tracking number (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FulfillmentUpdate' }
+      responses:
+        '200': { description: Order updated, content: { application/json: { schema: { $ref: '#/components/schemas/OrderDetail' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /orders/{orderId}/cancel:
+    parameters:
+      - { name: orderId, in: path, required: true, schema: { type: string } }
+    post:
+      operationId: cancelOrRefundOrder
+      summary: Cancel or refund an order, restoring stock where applicable (admin)
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CancelRequest' }
+      responses:
+        '200': { description: Order canceled/refunded, content: { application/json: { schema: { $ref: '#/components/schemas/OrderDetail' } } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { description: Order already in a terminal state, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+
+  parameters: {}
+
+  responses:
+    BadRequest: { description: Validation failure, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Error' } } } } }
+    Unauthorized: { description: Missing or invalid credential, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    Forbidden: { description: Authenticated but insufficient role, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    NotFound: { description: Resource does not exist, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+
+  schemas:
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code: { type: integer, description: HTTP or application error code }
+        message: { type: string, description: short human-readable label }
+        description: { type: string, description: detailed explanation }
+        moreInfo: { type: string, description: URI to documentation }
+
+    Product:
+      type: object
+      required: [id, name, basePrice, category, isOneOfAKind, status]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        description: { type: string }
+        category: { type: string }
+        collection: { type: string }
+        images: { type: array, items: { type: string, format: uri } }
+        basePrice: { type: number }
+        isOneOfAKind: { type: boolean }
+        isFeatured: { type: boolean }
+        status: { type: string, enum: [active, retired] }
+        inStock: { type: boolean }
+
+    ProductDetail:
+      allOf:
+        - { $ref: '#/components/schemas/Product' }
+        - type: object
+          properties:
+            careInfo: { type: string }
+            dimensions: { type: string }
+            variants: { type: array, items: { $ref: '#/components/schemas/Variant' } }
+
+    ProductInput:
+      type: object
+      required: [name, basePrice, category]
+      properties:
+        name: { type: string }
+        description: { type: string }
+        category: { type: string }
+        collection: { type: string }
+        images: { type: array, items: { type: string, format: uri } }
+        basePrice: { type: number }
+        careInfo: { type: string }
+        dimensions: { type: string }
+        isOneOfAKind: { type: boolean }
+        isFeatured: { type: boolean }
+        status: { type: string, enum: [active, retired] }
+
+    Variant:
+      type: object
+      required: [id, name, stockCount]
+      properties:
+        id: { type: string }
+        name: { type: string, description: "e.g. glaze color or size" }
+        sku: { type: string }
+        priceOverride: { type: number, nullable: true }
+        stockCount: { type: integer }
+
+    VariantInput:
+      type: object
+      required: [name, stockCount]
+      properties:
+        name: { type: string }
+        sku: { type: string }
+        priceOverride: { type: number, nullable: true }
+        stockCount: { type: integer }
+
+    Cart:
+      type: object
+      required: [id, items, subtotal]
+      properties:
+        id: { type: string }
+        items:
+          type: array
+          items:
+            type: object
+            required: [itemId, productId, variantId, name, quantity, unitPrice]
+            properties:
+              itemId: { type: string }
+              productId: { type: string }
+              variantId: { type: string }
+              name: { type: string }
+              quantity: { type: integer }
+              unitPrice: { type: number }
+        subtotal: { type: number }
+
+    CartItemInput:
+      type: object
+      required: [variantId, quantity]
+      properties:
+        variantId: { type: string }
+        quantity: { type: integer, minimum: 1 }
+
+    CheckoutRequest:
+      type: object
+      required: [email, shippingAddress, paymentMethodToken]
+      properties:
+        email: { type: string, format: email }
+        phone: { type: string }
+        shippingAddress: { $ref: '#/components/schemas/AddressInput' }
+        paymentMethodToken: { type: string, description: "Stripe payment method / confirmation token from the client" }
+        createAccount: { type: boolean, default: false }
+
+    Address:
+      type: object
+      required: [id, line1, city, region, postalCode, country]
+      properties:
+        id: { type: string }
+        line1: { type: string }
+        line2: { type: string }
+        city: { type: string }
+        region: { type: string }
+        postalCode: { type: string }
+        country: { type: string }
+        phone: { type: string }
+
+    AddressInput:
+      type: object
+      required: [line1, city, region, postalCode, country]
+      properties:
+        line1: { type: string }
+        line2: { type: string }
+        city: { type: string }
+        region: { type: string }
+        postalCode: { type: string }
+        country: { type: string }
+        phone: { type: string }
+
+    Order:
+      type: object
+      required: [id, orderNumber, subtotal, shippingFee, tax, total, paymentStatus, fulfillmentStatus, createdAt]
+      properties:
+        id: { type: string }
+        orderNumber: { type: string }
+        customerEmail: { type: string, format: email }
+        subtotal: { type: number }
+        shippingFee: { type: number }
+        tax: { type: number }
+        total: { type: number }
+        paymentStatus: { type: string, enum: [paid, failed, refunded] }
+        fulfillmentStatus: { type: string, enum: [placed, paid, shipped, delivered, canceled, refunded] }
+        trackingNumber: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+
+    OrderDetail:
+      allOf:
+        - { $ref: '#/components/schemas/Order' }
+        - type: object
+          properties:
+            shippingAddress: { $ref: '#/components/schemas/Address' }
+            items:
+              type: array
+              items:
+                type: object
+                properties:
+                  variantId: { type: string }
+                  name: { type: string }
+                  quantity: { type: integer }
+                  unitPrice: { type: number }
+            statusHistory:
+              type: array
+              items:
+                type: object
+                properties:
+                  status: { type: string }
+                  changedAt: { type: string, format: date-time }
+                  changedBy: { type: string }
+
+    FulfillmentUpdate:
+      type: object
+      required: [fulfillmentStatus]
+      properties:
+        fulfillmentStatus: { type: string, enum: [placed, paid, shipped, delivered] }
+        trackingNumber: { type: string }
+
+    CancelRequest:
+      type: object
+      properties:
+        reason: { type: string }
+        refund: { type: boolean, default: true }

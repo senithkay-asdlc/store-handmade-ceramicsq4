@@ -1,0 +1,25 @@
+title Handmade Ceramics Online Store
+
+component ceramics-webapp as "Ceramics Storefront" web-application
+component ceramics-admin-webapp as "Ceramics Admin Console" web-application
+component ceramics-api as "Ceramics API" service
+component ceramics-db as "Ceramics Database" database
+
+east user-auth as "Thunder Auth" identity-server
+south payment-provider as "Payment Provider" service
+south email-provider as "Email Provider" service
+
+north -> ceramics-webapp
+north -> ceramics-api
+west -> ceramics-admin-webapp
+
+ceramics-webapp -> ceramics-api
+ceramics-webapp -> user-auth
+
+ceramics-admin-webapp -> ceramics-api
+ceramics-admin-webapp -> user-auth
+
+ceramics-api -> ceramics-db
+ceramics-api -> user-auth
+ceramics-api -> payment-provider
+ceramics-api -> email-provider

@@ -1,0 +1,16 @@
+{
+  "name": "ceramics-webapp",
+  "type": "web-application",
+  "version": "0.1.0",
+  "language": "TypeScript",
+  "buildpack": "docker",
+  "appPath": "ceramics-webapp",
+  "entrypoint": "deployment/web-application",
+  "exposure": "internet",
+  "dependencies": [
+    { "kind": "component", "name": "ceramics-api", "description": "Catalog browsing/search, cart, checkout, shopper order history and saved addresses." },
+    { "kind": "platform-resource", "name": "user-auth", "resourceType": "thunder-app", "description": "Optional shopper sign-in (OIDC) so a registered shopper gets persistent cart, order history, and saved addresses; guests continue unauthenticated." }
+  ],
+  "description": "The public storefront SPA for the handmade-ceramics store. Renders the product catalog, cart, and checkout flow, and (for signed-in shoppers) order history and saved addresses. Talks only to ceramics-api for data and to Thunder for optional sign-in; holds no payment or database credentials itself.",
+  "skillsApplied": ["react-webapp", "thunder-authentication", "excalidraw-wireframes"]
+}

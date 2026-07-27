@@ -1,0 +1,328 @@
+{
+  "requirements": [
+    {
+      "id": "REQ-001",
+      "statement": "The system shall display a list of ceramic products with name, representative image, price, and short description.",
+      "criteria": [
+        { "id": "AC-001-a", "must": "The product list displays each product's name", "method": "e2e" },
+        { "id": "AC-001-b", "must": "The product list displays each product's representative image", "method": "e2e" },
+        { "id": "AC-001-c", "must": "The product list displays each product's price", "method": "e2e" },
+        { "id": "AC-001-d", "must": "The product list displays each product's short description", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-002",
+      "statement": "The system shall allow browsing products by category and by collection/tag.",
+      "criteria": [
+        { "id": "AC-002-a", "must": "Selecting a category filters the product list to that category", "method": "e2e" },
+        { "id": "AC-002-b", "must": "Selecting a collection/tag filters the product list to that collection/tag", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-003",
+      "statement": "The system shall provide a product detail page showing full description, materials/care instructions, dimensions, multiple images, price, available variants, and stock status.",
+      "criteria": [
+        { "id": "AC-003-a", "must": "The product detail page shows the full description", "method": "e2e" },
+        { "id": "AC-003-b", "must": "The product detail page shows materials/care instructions", "method": "e2e" },
+        { "id": "AC-003-c", "must": "The product detail page shows dimensions", "method": "e2e" },
+        { "id": "AC-003-d", "must": "The product detail page shows more than one image when available", "method": "e2e" },
+        { "id": "AC-003-e", "must": "The product detail page shows the price", "method": "e2e" },
+        { "id": "AC-003-f", "must": "The product detail page shows selectable variants (e.g. glaze color, size)", "method": "e2e" },
+        { "id": "AC-003-g", "must": "The product detail page shows the current stock status", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-004",
+      "statement": "The system shall support full-text search over product name and description.",
+      "criteria": [
+        { "id": "AC-004-a", "must": "Searching a term matching a product's name returns that product", "method": "e2e" },
+        { "id": "AC-004-b", "must": "Searching a term matching a product's description returns that product", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-005",
+      "statement": "The system shall allow sorting/filtering results (e.g., by price, newest, category).",
+      "criteria": [
+        { "id": "AC-005-a", "must": "The shopper can sort the product list by price", "method": "e2e" },
+        { "id": "AC-005-b", "must": "The shopper can sort the product list by newest", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-006",
+      "statement": "The system shall mark a product or variant as 'Sold Out' when its stock count is zero and shall prevent adding sold-out items to the cart.",
+      "criteria": [
+        { "id": "AC-006-a", "must": "A product/variant with zero stock is visibly labeled 'Sold Out'", "method": "e2e" },
+        { "id": "AC-006-b", "must": "Adding a sold-out product/variant to the cart is prevented", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-007",
+      "statement": "The system shall support marking a product as a one-of-a-kind piece that is automatically delisted from the catalog once purchased.",
+      "criteria": [
+        { "id": "AC-007-a", "must": "A product can be marked as one-of-a-kind", "method": "e2e" },
+        { "id": "AC-007-b", "must": "A one-of-a-kind product is automatically delisted from the catalog immediately after it is purchased", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-008",
+      "statement": "The system shall allow a shopper to add a product (with selected variant) and quantity to a cart.",
+      "criteria": [
+        { "id": "AC-008-a", "must": "A shopper can add a selected variant and quantity of a product to the cart", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-009",
+      "statement": "The system shall allow a shopper to view, update quantities in, and remove items from the cart.",
+      "criteria": [
+        { "id": "AC-009-a", "must": "A shopper can view the current contents of their cart", "method": "e2e" },
+        { "id": "AC-009-b", "must": "A shopper can update the quantity of an item in the cart", "method": "e2e" },
+        { "id": "AC-009-c", "must": "A shopper can remove an item from the cart", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-010",
+      "statement": "The system shall persist the guest cart across pages within the same session/browser, and persist it to the shopper's account when signed in across devices/sessions.",
+      "criteria": [
+        { "id": "AC-010-a", "must": "A guest's cart persists when navigating between pages in the same browser session", "method": "e2e" },
+        { "id": "AC-010-b", "must": "A signed-in shopper's cart persists across sessions/devices", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-011",
+      "statement": "The system shall prevent the cart from holding more units of a variant than are currently in stock, re-validating stock at checkout time.",
+      "criteria": [
+        { "id": "AC-011-a", "must": "The cart cannot hold more units of a variant than are currently in stock", "method": "e2e" },
+        { "id": "AC-011-b", "must": "Stock is re-validated at checkout time before payment", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-012",
+      "statement": "The system shall display a running subtotal (before shipping and tax) as the cart changes.",
+      "criteria": [
+        { "id": "AC-012-a", "must": "The cart subtotal updates immediately when items or quantities change", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-013",
+      "statement": "The system shall allow checkout as a guest or, if signed in, using saved details.",
+      "criteria": [
+        { "id": "AC-013-a", "must": "A shopper can complete checkout without creating an account", "method": "e2e" },
+        { "id": "AC-013-b", "must": "A signed-in shopper can complete checkout using previously saved details", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-014",
+      "statement": "The system shall collect a shipping address, contact email, and optionally a phone number.",
+      "criteria": [
+        { "id": "AC-014-a", "must": "Checkout requires a shipping address", "method": "e2e" },
+        { "id": "AC-014-b", "must": "Checkout requires a contact email", "method": "e2e" },
+        { "id": "AC-014-c", "must": "Checkout accepts an optional phone number without requiring it", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-015",
+      "statement": "The system shall apply a flat-rate shipping fee based on configurable rules; no real-time carrier rate lookup is required.",
+      "criteria": [
+        { "id": "AC-015-a", "must": "A flat-rate (or threshold-based free) shipping fee is applied and shown at checkout", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-016",
+      "statement": "The system shall calculate and display applicable sales tax based on the shipping destination.",
+      "criteria": [
+        { "id": "AC-016-a", "must": "Sales tax is calculated based on the shipping destination and displayed before payment", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-017",
+      "statement": "The system shall process payment through a third-party payment gateway supporting major credit/debit cards.",
+      "criteria": [
+        { "id": "AC-017-a", "must": "A checkout with a valid card is charged successfully through the payment gateway", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-018",
+      "statement": "The system shall re-validate stock availability and current prices immediately before charging payment, and shall reject/adjust the order if an item became unavailable.",
+      "criteria": [
+        { "id": "AC-018-a", "must": "An item that became unavailable between add-to-cart and payment causes the order to be rejected or adjusted rather than silently charged", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-019",
+      "statement": "On successful payment, the system shall create an order record, decrement stock for each purchased variant, and display an order confirmation with an order number.",
+      "criteria": [
+        { "id": "AC-019-a", "must": "A successful payment creates an order record", "method": "e2e" },
+        { "id": "AC-019-b", "must": "A successful payment decrements stock for each purchased variant", "method": "e2e" },
+        { "id": "AC-019-c", "must": "The shopper sees an order confirmation screen displaying an order number", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-020",
+      "statement": "The system shall send an order confirmation email to the shopper after successful checkout.",
+      "criteria": [
+        { "id": "AC-020-a", "must": "An order confirmation email is sent to the shopper after successful checkout", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-021",
+      "statement": "If payment fails, the system shall show a clear error and leave the cart intact so the shopper can retry.",
+      "criteria": [
+        { "id": "AC-021-a", "must": "A failed payment displays a clear error message to the shopper", "method": "scenario" },
+        { "id": "AC-021-b", "must": "A failed payment leaves the cart contents intact for retry", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-022",
+      "statement": "The system shall allow a shopper to register an account with email and password (or equivalent), and to sign in/out.",
+      "criteria": [
+        { "id": "AC-022-a", "must": "A shopper can register a new account", "method": "e2e" },
+        { "id": "AC-022-b", "must": "A registered shopper can sign in", "method": "e2e" },
+        { "id": "AC-022-c", "must": "A signed-in shopper can sign out", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-023",
+      "statement": "A signed-in shopper shall be able to view their past orders and each order's status.",
+      "criteria": [
+        { "id": "AC-023-a", "must": "A signed-in shopper can view a list of their past orders", "method": "e2e" },
+        { "id": "AC-023-b", "must": "Each past order shows its current status", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-024",
+      "statement": "A signed-in shopper shall be able to save one or more shipping addresses for reuse at checkout.",
+      "criteria": [
+        { "id": "AC-024-a", "must": "A signed-in shopper can save a shipping address", "method": "e2e" },
+        { "id": "AC-024-b", "must": "A saved address can be selected/reused at checkout", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-025",
+      "statement": "Guest checkout shall never require account creation and shall optionally offer to create an account from the details already entered.",
+      "criteria": [
+        { "id": "AC-025-a", "must": "Guest checkout completes successfully without requiring account creation", "method": "e2e" },
+        { "id": "AC-025-b", "must": "Guest checkout offers an option to create an account from the entered details", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-026",
+      "statement": "The system shall let an admin view a list of orders with filtering by status.",
+      "criteria": [
+        { "id": "AC-026-a", "must": "An admin can view a list of all orders", "method": "e2e" },
+        { "id": "AC-026-b", "must": "An admin can filter the order list by status", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-027",
+      "statement": "The system shall let an admin view full order detail: items, customer/shipping info, payment status, and history of status changes.",
+      "criteria": [
+        { "id": "AC-027-a", "must": "The order detail view shows the order's items", "method": "e2e" },
+        { "id": "AC-027-b", "must": "The order detail view shows customer and shipping information", "method": "e2e" },
+        { "id": "AC-027-c", "must": "The order detail view shows the payment status", "method": "e2e" },
+        { "id": "AC-027-d", "must": "The order detail view shows the history of status changes", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-028",
+      "statement": "The system shall let an admin update an order's fulfillment status and optionally attach a shipment tracking number, triggering a shopper notification email.",
+      "criteria": [
+        { "id": "AC-028-a", "must": "An admin can update an order's fulfillment status", "method": "e2e" },
+        { "id": "AC-028-b", "must": "An admin can attach a shipment tracking number to an order", "method": "e2e" },
+        { "id": "AC-028-c", "must": "Updating fulfillment status triggers a shopper notification email", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-029",
+      "statement": "The system shall let an admin issue a refund or cancel an order, reflecting this in order status and, where applicable, restoring stock.",
+      "criteria": [
+        { "id": "AC-029-a", "must": "An admin can cancel an order", "method": "e2e" },
+        { "id": "AC-029-b", "must": "An admin can issue a refund for an order", "method": "e2e" },
+        { "id": "AC-029-c", "must": "Canceling/refunding an order restores stock for the affected variants where applicable", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-030",
+      "statement": "The system shall let an admin create, edit, and retire (unpublish) products, including name, description, category, images, price, and variants.",
+      "criteria": [
+        { "id": "AC-030-a", "must": "An admin can create a new product with name, description, category, images, price, and variants", "method": "e2e" },
+        { "id": "AC-030-b", "must": "An admin can edit an existing product's fields", "method": "e2e" },
+        { "id": "AC-030-c", "must": "An admin can retire (unpublish) a product so it no longer appears in the storefront catalog", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-031",
+      "statement": "The system shall let an admin set and adjust the stock count for each product/variant.",
+      "criteria": [
+        { "id": "AC-031-a", "must": "An admin can set the stock count for a product/variant", "method": "e2e" },
+        { "id": "AC-031-b", "must": "An admin can adjust (increase or decrease) the stock count for a product/variant", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-032",
+      "statement": "The system shall let an admin mark a product as featured or as a one-of-a-kind piece.",
+      "criteria": [
+        { "id": "AC-032-a", "must": "An admin can mark a product as featured", "method": "e2e" },
+        { "id": "AC-032-b", "must": "An admin can mark a product as one-of-a-kind", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-033",
+      "statement": "The system shall restrict catalog and order management actions to authenticated admin users only.",
+      "criteria": [
+        { "id": "AC-033-a", "must": "An unauthenticated request to a catalog or order management action is rejected", "method": "e2e" },
+        { "id": "AC-033-b", "must": "An authenticated non-admin request to a catalog or order management action is rejected", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-034",
+      "statement": "Payment card data shall never be stored or handled directly by the application; it shall be tokenized/processed entirely through the payment gateway.",
+      "criteria": [
+        { "id": "AC-034-a", "must": "Raw card numbers are never persisted in the application's own data store", "method": "manual" }
+      ]
+    },
+    {
+      "id": "REQ-035",
+      "statement": "Admin functionality shall require authentication and shall not be reachable by unauthenticated or non-admin users.",
+      "criteria": [
+        { "id": "AC-035-a", "must": "The admin console requires sign-in before any admin functionality is reachable", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-036",
+      "statement": "Shopper personal data shall be stored securely and transmitted only over encrypted connections (TLS).",
+      "criteria": [
+        { "id": "AC-036-a", "must": "The storefront and admin console are served exclusively over HTTPS/TLS", "method": "manual" }
+      ]
+    },
+    {
+      "id": "REQ-037",
+      "statement": "Catalog listing and product detail pages shall load within 2 seconds under normal load.",
+      "criteria": [
+        { "id": "AC-037-a", "must": "The catalog listing page loads within 2 seconds under normal load", "method": "manual" },
+        { "id": "AC-037-b", "must": "A product detail page loads within 2 seconds under normal load", "method": "manual" }
+      ]
+    },
+    {
+      "id": "REQ-038",
+      "statement": "Stock decrements must be atomic/consistent so that concurrent purchases cannot oversell a limited or one-of-a-kind item.",
+      "criteria": [
+        { "id": "AC-038-a", "must": "Two concurrent purchase attempts for the last unit of a variant result in exactly one succeeding and one being rejected/adjusted", "method": "scenario" }
+      ]
+    },
+    {
+      "id": "REQ-039",
+      "statement": "The storefront shall be usable on both desktop and mobile browsers (responsive design).",
+      "criteria": [
+        { "id": "AC-039-a", "must": "The storefront's catalog, cart, and checkout flows are usable on a mobile-width viewport", "method": "scenario" }
+      ]
+    },
+    {
+      "id": "REQ-040",
+      "statement": "Changes to order status and stock adjustments made by admins shall be recorded with a timestamp and the acting admin.",
+      "criteria": [
+        { "id": "AC-040-a", "must": "An order status change records a timestamp and the acting admin", "method": "e2e" },
+        { "id": "AC-040-b", "must": "A stock adjustment records a timestamp and the acting admin", "method": "e2e" }
+      ]
+    }
+  ]
+}

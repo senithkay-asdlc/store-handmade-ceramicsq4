@@ -1,0 +1,16 @@
+{
+  "name": "ceramics-admin-webapp",
+  "type": "web-application",
+  "version": "0.1.0",
+  "language": "TypeScript",
+  "buildpack": "docker",
+  "appPath": "ceramics-admin-webapp",
+  "entrypoint": "deployment/web-application",
+  "exposure": "intranet",
+  "dependencies": [
+    { "kind": "component", "name": "ceramics-api", "description": "Catalog/inventory CRUD and order list/detail/status/refund management operations." },
+    { "kind": "platform-resource", "name": "user-auth", "resourceType": "thunder-app", "description": "Staff sign-in (OIDC); the caller's admin role is carried in the Thunder groups claim and enforced by ceramics-api." }
+  ],
+  "description": "The staff-only back-office SPA. Lets store admins manage the product catalog (create/edit/retire products and variants, adjust stock) and manage orders (view, filter, update fulfillment status, refund/cancel). Exposed only on the org intranet boundary; every action requires an authenticated admin-role sign-in via Thunder.",
+  "skillsApplied": ["react-webapp", "thunder-authentication", "excalidraw-wireframes"]
+}

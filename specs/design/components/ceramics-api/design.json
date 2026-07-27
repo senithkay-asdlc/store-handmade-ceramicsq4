@@ -1,0 +1,30 @@
+{
+  "name": "ceramics-api",
+  "type": "service",
+  "version": "0.1.0",
+  "language": "Go",
+  "buildpack": "docker",
+  "appPath": "ceramics-api",
+  "entrypoint": "deployment/service",
+  "exposure": "internet",
+  "dependencies": [
+    { "kind": "platform-resource", "name": "ceramics-db", "resourceType": "postgres", "description": "Stores products, variants/stock, carts, orders, accounts, and saved addresses.", "parameters": { "size": "small" } },
+    { "kind": "platform-resource", "name": "user-auth", "resourceType": "thunder-app", "description": "Validates shopper/admin sign-in tokens; the gateway injects X-User-Id and X-User-Groups (admin role) per request." },
+    { "kind": "external", "name": "payment-provider", "style": "sdk", "package": "go:github.com/stripe/stripe-go/v78",
+      "description": "Creates and confirms Stripe PaymentIntents during checkout; card data never touches this service directly.",
+      "config": [
+        { "key": "STRIPE_SECRET_KEY", "secret": true, "description": "Stripe secret API key used to create/confirm PaymentIntents." },
+        { "key": "STRIPE_WEBHOOK_SECRET", "secret": true, "description": "Signing secret used to verify Stripe webhook payloads." }
+      ]
+    },
+    { "kind": "external", "name": "email-provider", "description": "Sends order confirmation and shipment-notification emails to shoppers. No specific provider is named in the requirements; pick one of the candidates.",
+      "candidates": [
+        { "name": "sendgrid", "style": "rest-api", "description": "SendGrid transactional email REST API." },
+        { "name": "postmark", "style": "rest-api", "description": "Postmark transactional email REST API." },
+        { "name": "resend", "style": "sdk", "package": "npm:resend", "description": "Resend transactional email SDK." }
+      ]
+    }
+  ],
+  "description": "The single backend service for the store: product catalog and search, cart, checkout orchestration (stock/price re-validation, shipping fee, tax, Stripe payment), order lifecycle, and the admin catalog/inventory/order-management operations. Owns ceramics-db exclusively. Exposed only to the two web-apps on the intranet boundary via the platform gateway; enforces the shopper/admin role split from X-User-Groups. Does not implement its own JWT validation or CORS handling (gateway-provided) and does not store card data.",
+  "skillsApplied": ["go", "openapi-conventions", "api-management", "thunder-authentication"]
+}
