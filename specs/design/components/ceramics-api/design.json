@@ -7,24 +7,69 @@
   "appPath": "ceramics-api",
   "entrypoint": "deployment/service",
   "exposure": "internet",
+  "description": "The single backend service for the store: product catalog and search, cart, checkout orchestration (stock/price re-validation, shipping fee, tax, Stripe payment), order lifecycle, and the admin catalog/inventory/order-management operations. Owns ceramics-db exclusively. Exposed only to the two web-apps on the intranet boundary via the platform gateway; enforces the shopper/admin role split from X-User-Groups. Does not implement its own JWT validation or CORS handling (gateway-provided) and does not store card data.",
   "dependencies": [
-    { "kind": "platform-resource", "name": "ceramics-db", "resourceType": "postgres", "description": "Stores products, variants/stock, carts, orders, accounts, and saved addresses.", "parameters": { "size": "small" } },
-    { "kind": "platform-resource", "name": "user-auth", "resourceType": "thunder-app", "description": "Validates shopper/admin sign-in tokens; the gateway injects X-User-Id and X-User-Groups (admin role) per request." },
-    { "kind": "external", "name": "payment-provider", "style": "sdk", "package": "go:github.com/stripe/stripe-go/v78",
+    {
+      "kind": "platform-resource",
+      "name": "ceramics-db",
+      "description": "Stores products, variants/stock, carts, orders, accounts, and saved addresses.",
+      "resourceType": "postgres",
+      "parameters": {
+        "size": "small"
+      }
+    },
+    {
+      "kind": "platform-resource",
+      "name": "user-auth",
+      "description": "Validates shopper/admin sign-in tokens; the gateway injects X-User-Id and X-User-Groups (admin role) per request.",
+      "resourceType": "thunder-app"
+    },
+    {
+      "kind": "external",
+      "name": "payment-provider",
       "description": "Creates and confirms Stripe PaymentIntents during checkout; card data never touches this service directly.",
+      "style": "sdk",
+      "package": "go:github.com/stripe/stripe-go/v78",
       "config": [
-        { "key": "STRIPE_SECRET_KEY", "secret": true, "description": "Stripe secret API key used to create/confirm PaymentIntents." },
-        { "key": "STRIPE_WEBHOOK_SECRET", "secret": true, "description": "Signing secret used to verify Stripe webhook payloads." }
+        {
+          "key": "STRIPE_SECRET_KEY",
+          "secret": true,
+          "description": "Stripe secret API key used to create/confirm PaymentIntents."
+        },
+        {
+          "key": "STRIPE_WEBHOOK_SECRET",
+          "secret": true,
+          "description": "Signing secret used to verify Stripe webhook payloads."
+        }
       ]
     },
-    { "kind": "external", "name": "email-provider", "style": "rest-api", "specPath": "https://raw.githubusercontent.com/sendgrid/sendgrid-oai/main/oas_v3.json",
+    {
+      "kind": "external",
+      "name": "email-provider",
       "description": "SendGrid v3 REST API, used to send order confirmation and shipment-notification emails to shoppers via POST /v3/mail/send.",
+      "style": "rest-api",
+      "specPath": "https://raw.githubusercontent.com/sendgrid/sendgrid-oai/main/oas_v3.json",
       "config": [
-        { "key": "SENDGRID_API_KEY", "secret": true, "description": "SendGrid API key used to authenticate mail-send requests." },
-        { "key": "SENDGRID_FROM_EMAIL", "defaultValue": "orders@ceramica.example.com", "description": "The verified sender address order/shipment emails are sent from." }
+        {
+          "key": "SENDGRID_API_KEY",
+          "secret": true,
+          "description": "SendGrid API key used to authenticate mail-send requests."
+        },
+        {
+          "key": "SENDGRID_FROM_EMAIL",
+          "description": "The verified sender address order/shipment emails are sent from.",
+          "defaultValue": "orders@ceramica.example.com"
+        }
       ]
     }
   ],
-  "description": "The single backend service for the store: product catalog and search, cart, checkout orchestration (stock/price re-validation, shipping fee, tax, Stripe payment), order lifecycle, and the admin catalog/inventory/order-management operations. Owns ceramics-db exclusively. Exposed only to the two web-apps on the intranet boundary via the platform gateway; enforces the shopper/admin role split from X-User-Groups. Does not implement its own JWT validation or CORS handling (gateway-provided) and does not store card data.",
-  "skillsApplied": ["go", "openapi-conventions", "api-management", "thunder-authentication"]
+  "exposesAPI": {
+    "auth": "end-user-required"
+  },
+  "skillsApplied": [
+    "go",
+    "openapi-conventions",
+    "api-management",
+    "thunder-authentication"
+  ]
 }
